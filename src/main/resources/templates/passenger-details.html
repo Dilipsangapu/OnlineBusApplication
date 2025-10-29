@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Passenger Details</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/user.css">
+    <link rel="stylesheet" href="/css/passenger-details.css">
+</head>
+<body>
+
+<div class="details-container">
+    <a href="/user/dashboard" style="text-decoration: none; color: #008c7a; margin-bottom: 20px; display: inline-block;">&larr; Back to Dashboard</a>
+    <h2>Confirm Your Journey</h2>
+    <div id="bookingSummary" class="booking-summary"></div>
+    <h3>🧑 Enter Passenger Details</h3>
+    <form id="passengerDetailsForm"></form>
+    <div id="finalFare" style="margin-top: 20px;"></div>
+    <button id="confirmBookingBtn" class="btn-submit">✅ Proceed to Pay</button>
+</div>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script src="/js/passenger-details.js"></script>
+
+<div id="notification-container"></div>
+
+</body>
+</html>

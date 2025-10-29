@@ -1,0 +1,513 @@
+/* =================================================================
+   VARIABLES & ROOT STYLES
+   ================================================================= */
+:root {
+  --primary-color: #008c7a;
+  --primary-hover: #006e5a;
+  --secondary-color: #5ee7df;
+  --accent-color: #1e90ff; /* Blue for 'selected' state */
+  --background-light: #f7feff;
+  --background-gradient: linear-gradient(135deg, #e0f7fa, #f7feff);
+  --text-dark: #2c3e50;
+  --text-light: #ffffff;
+  --border-color: #dbeceb;
+  --shadow-color: rgba(44, 62, 80, 0.1);
+  --disabled-color: #bdc3c7;
+
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --border-radius: 8px;
+  --transition-speed: 0.3s;
+}
+
+/* =================================================================
+   GENERAL & LAYOUT
+   ================================================================= */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background: var(--background-gradient);
+  color: var(--text-dark);
+  display: flex;
+  min-height: 100vh;
+}
+
+.dashboard-container {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+}
+
+.main-content {
+  flex: 1;
+  padding: var(--spacing-lg);
+  overflow-y: auto;
+}
+
+.user-section { display: none; }
+.user-section.active { display: block; }
+
+h2, h3, h4 {
+  color: var(--primary-color);
+}
+
+h2 { margin-bottom: var(--spacing-md); }
+
+/* =================================================================
+   SIDEBAR NAVIGATION
+   ================================================================= */
+.sidebar {
+  width: 240px;
+  background-color: var(--text-light);
+  padding: var(--spacing-lg);
+  box-shadow: 2px 0 15px var(--shadow-color);
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar h2 {
+  font-size: 28px;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+}
+
+.sidebar li {
+  padding: 14px var(--spacing-md);
+  margin-bottom: var(--spacing-sm);
+  cursor: pointer;
+  border-radius: var(--border-radius);
+  transition: all var(--transition-speed) ease;
+  font-weight: 500;
+  text-align: center;
+}
+
+.sidebar li:hover {
+  background-color: var(--secondary-color);
+  color: var(--primary-hover);
+  transform: translateX(5px);
+}
+
+.sidebar li.active {
+  background-color: var(--primary-color);
+  color: var(--text-light);
+  font-weight: bold;
+  box-shadow: 0 4px 8px rgba(0, 140, 122, 0.3);
+}
+
+/* =================================================================
+   FORMS & BUTTONS
+   ================================================================= */
+.form-layout {
+  display: flex;
+  gap: var(--spacing-sm);
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: var(--spacing-lg);
+  background: var(--background-light);
+  padding: var(--spacing-md);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-color);
+}
+
+.form-layout input,
+.form-layout select,
+.form-layout button {
+  padding: 12px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  font-size: 15px;
+  transition: all var(--transition-speed) ease;
+}
+
+.form-layout input:focus,
+.form-layout select:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(0, 140, 122, 0.2);
+}
+
+.btn-submit {
+  background-color: var(--primary-color);
+  color: var(--text-light);
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+}
+.btn-submit:hover {
+  background-color: var(--primary-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px var(--shadow-color);
+}
+
+/* =================================================================
+   BUS CARDS & SEARCH RESULTS
+   ================================================================= */
+.bus-card {
+  background: var(--text-light);
+  padding: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+  border-radius: var(--border-radius);
+  border-left: 5px solid var(--secondary-color);
+  box-shadow: 0 2px 8px var(--shadow-color);
+  transition: all var(--transition-speed) ease;
+}
+.bus-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px var(--shadow-color);
+}
+
+.bus-card h4 { margin: 0; }
+.bus-card p { margin: 5px 0; color: #555; }
+.bus-card button {
+  margin-top: 10px;
+  background-color: var(--primary-color);
+  color: var(--text-light);
+  border: none;
+  padding: 10px 15px;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color var(--transition-speed) ease;
+}
+.bus-card button:hover {
+  background-color: var(--primary-hover);
+}
+
+
+/* =================================================================
+   SEAT LAYOUT & LEGEND
+   ================================================================= */
+.seat-type-selector {
+  background-color: #e0f2f1;
+  border: 1px solid var(--border-color);
+  padding: 8px 16px;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: all var(--transition-speed) ease;
+  font-weight: 500;
+}
+.seat-type-selector.active {
+  background-color: var(--primary-color);
+  color: var(--text-light);
+  font-weight: bold;
+}
+
+
+.seat-deck {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-lg);
+  padding: var(--spacing-md);
+  background: var(--background-light);
+  border-radius: var(--border-radius);
+}
+
+.seat-btn {
+  /* --- Base styles for SVG container --- */
+  width: 60px;
+  height: 60px;
+  background-color: transparent; /* IMPORTANT: Allows SVG background to show */
+  border: none;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  cursor: pointer;
+  padding: 0;
+  position: relative; /* For positioning the text */
+  transition: all 0.2s ease-in-out;
+}
+
+/* For displaying the seat number on top of the SVG */
+.seat-btn .seat-info {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none; /* Make text non-interactive */
+    font-size: 12px;
+    font-weight: bold;
+    color: var(--text-dark);
+}
+
+/* --- Applying the SVGs --- */
+.seat-btn.seater.available { background-image: url('/svg/seater_available.svg'); }
+.seat-btn.seater.selected { background-image: url('/svg/seater_selected.svg'); }
+.seat-btn.seater.booked { background-image: url('/svg/seater_booked.svg'); }
+.seat-btn.sleeper.available { background-image: url('/svg/sleeper_available.svg'); }
+.seat-btn.sleeper.selected { background-image: url('/svg/sleeper_selected.svg'); }
+.seat-btn.sleeper.booked { background-image: url('/svg/sleeper_booked.svg'); }
+
+/* --- Interaction and State Styles --- */
+.seat-btn:hover:not(:disabled) {
+  transform: translateY(-2px) scale(1.05);
+}
+.seat-btn.selected {
+  transform: scale(1.1);
+}
+.seat-btn.booked {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* --- Deck and Legend Styles --- */
+.deck-title {
+  font-weight: bold;
+  font-size: 18px;
+  margin: var(--spacing-md) 0 var(--spacing-sm);
+  color: var(--primary-hover);
+  border-bottom: 2px solid var(--secondary-color);
+  padding-bottom: var(--spacing-sm);
+}
+
+
+/* ======================================================= */
+/* LEGEND SECTION */
+/* ======================================================= */
+
+/* Replaces old #seatLegend */
+.legend-container {
+  display: none; /* Hide legends by default */
+  margin-top: var(--spacing-md);
+  gap: var(--spacing-md);
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* This makes ONLY the active legend visible */
+.legend-container.active {
+  display: flex;
+}
+
+.legend-item { display: flex; align-items: center; gap: var(--spacing-sm); }
+.legend-box {
+  width: 30px;
+  height: 30px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+/* --- Seater Legend Icons --- */
+.legend-seater-available { background-image: url('/svg/seater_available.svg'); }
+.legend-seater-booked { background-image: url('/svg/seater_booked.svg'); }
+.legend-seater-selected { background-image: url('/svg/seater_selected.svg'); }
+
+/* --- Sleeper Legend Icons --- */
+.legend-sleeper-available { background-image: url('/svg/sleeper_available.svg'); }
+.legend-sleeper-booked { background-image: url('/svg/sleeper_booked.svg'); }
+.legend-sleeper-selected { background-image: url('/svg/sleeper_selected.svg'); }
+
+
+/* =================================================================
+   PASSENGER & BOOKING DETAILS
+   ================================================================= */
+.passenger-input-block {
+  background-color: var(--background-light);
+  padding: var(--spacing-md);
+  border-radius: var(--border-radius);
+  margin-bottom: var(--spacing-md);
+  border: 1px solid var(--border-color);
+}
+
+.passenger-input-block label { display: block; margin-bottom: 5px; font-weight: 500; }
+.passenger-input-block .input-group { display: block; margin-bottom: var(--spacing-sm); }
+.passenger-input-block input,
+.passenger-input-block select {
+  padding: 10px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  width: 100%;
+  max-width: 350px;
+}
+.passenger-input-block input:focus,
+.passenger-input-block select:focus {
+  outline: none;
+  border-color: var(--primary-color);
+}
+.passenger-input-block p { margin-top: 10px; font-weight: bold; font-size: 1.1em; }
+
+#confirmBookingBtn {
+  display: block;
+  width: 100%;
+  max-width: 400px;
+  margin: var(--spacing-lg) auto 0;
+  padding: 15px 20px;
+  font-size: 18px;
+  background-color: var(--primary-color);
+  color: var(--text-light);
+  border: none;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: all var(--transition-speed) ease;
+}
+#confirmBookingBtn:disabled { background-color: var(--disabled-color); cursor: not-allowed; }
+#confirmBookingBtn:hover:enabled {
+  background-color: var(--primary-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 140, 122, 0.3);
+}
+
+/* =================================================================
+   BOOKINGS TABLE & PROFILE
+   ================================================================= */
+.table-container {
+  overflow-x: auto; /* For responsive tables */
+}
+.booking-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  background: var(--text-light);
+  box-shadow: 0 2px 8px var(--shadow-color);
+  border-radius: var(--border-radius);
+  overflow: hidden; /* To apply radius to corners */
+}
+.booking-table th,
+.booking-table td {
+  border-bottom: 1px solid var(--border-color);
+  padding: 14px;
+  text-align: left;
+}
+.booking-table th {
+  background-color: #e0f7fa;
+  color: var(--primary-hover);
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 12px;
+}
+.booking-table tr:hover {
+  background-color: #f1fcfb;
+}
+
+.profile-card {
+  background: var(--text-light);
+  padding: var(--spacing-lg);
+  border-radius: var(--border-radius);
+  box-shadow: 0 2px 8px var(--shadow-color);
+}
+.profile-card p { margin: 10px 0; font-size: 16px; }
+
+/* =================================================================
+   RESPONSIVE STYLES
+   ================================================================= */
+@media (max-width: 992px) {
+  .dashboard-container { flex-direction: column; }
+  .sidebar {
+    width: 100%;
+    box-shadow: none;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--spacing-sm) var(--spacing-md);
+  }
+  .sidebar h2 { font-size: 22px; margin: 0; }
+  .sidebar ul { display: flex; gap: var(--spacing-sm); margin: 0; }
+  .sidebar li { padding: 10px; margin: 0; }
+  .sidebar li:hover { transform: translateY(-2px); }
+}
+
+@media (max-width: 768px) {
+  .main-content { padding: var(--spacing-md); }
+  .form-layout { flex-direction: column; align-items: stretch; }
+  .seat-deck { justify-content: center; }
+  .passenger-input-block input,
+  .passenger-input-block select { max-width: 100%; }
+  .booking-table { font-size: 14px; }
+  .sidebar h2 { display: none; } /* Hide title on very small screens */
+  .sidebar { justify-content: center; }
+}
+
+
+/* 🚨 NEW: Notification Styles */
+#notification-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 10000; /* Ensure it's above everything */
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.notification-message {
+    padding: 15px 25px;
+    border-radius: 10px;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: all 0.5s ease-in-out; /* Match transition speed for removal */
+    min-width: 250px;
+    max-width: 350px;
+    color: var(--text-light);
+    transform: translateX(100%); /* Start off-screen */
+    opacity: 0;
+    animation: slideInRight 0.5s forwards;
+}
+
+.notification-success {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-hover)); /* Teal theme */
+}
+
+.notification-error {
+    background: linear-gradient(135deg, #d32f2f, #a00000); /* Red theme */
+}
+
+.notification-email {
+    background: linear-gradient(135deg, #ff6b35, #f7931e); /* Orange theme for email notifications */
+    border-left: 4px solid #ff6b35;
+}
+
+.notification-message.fade-out {
+    opacity: 0;
+    transform: translateX(100%); /* Slide it back out as it fades */
+}
+
+/* 🚨 NEW: Notification slide-in animation */
+@keyframes slideInRight {
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* =================================================================
+   LOADER & SPINNER STYLES (DEFINITIVE FIX)
+   ================================================================= */
+
+.loader-overlay {
+  /* This ensures JavaScript can override the initial display property */
+  display: none !important;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.8);
+  z-index: 10001;
+  align-items: center;
+  justify-content: center;
+}
+
+.loader-spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid #f3f3f3;
+  border-top: 5px solid var(--primary-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

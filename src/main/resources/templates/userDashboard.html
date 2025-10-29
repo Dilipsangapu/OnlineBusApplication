@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <title>User Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/css/user.css" />
+</head>
+<body th:data-email="${session.email}" th:data-name="${session.name}">
+<div class="dashboard-container">
+    <aside class="sidebar">
+        <h2>🎫 User</h2>
+        <ul>
+            <li class="active" onclick="showUserSection('search')">🔍 Search Buses</li>
+            <li onclick="showUserSection('bookings')">📖 My Bookings</li>
+            <li onclick="showUserSection('profile')">👤 Profile</li>
+            <li onclick="window.location.href='/logout'">🚪 Logout</li>
+        </ul>
+    </aside>
+
+    <main class="main-content">
+        <section id="searchSection" class="user-section active">
+            <h2>🔍 Search Available Buses</h2>
+            <form id="searchForm" class="form-layout">
+                <input type="text" id="fromCity" placeholder="From City" required />
+                <input type="text" id="toCity" placeholder="To City" required />
+                <input type="date" id="travelDate" required />
+                <button type="submit" class="btn-submit">Search</button>
+            </form>
+
+            <div id="searchResults" class="search-results"></div>
+
+            <div id="seatLayoutContainer" style="margin-top: 20px; display: none;">
+                <h3>Select Seats</h3>
+                <div id="routeInfo" class="route-info" style="background: #f0f8ff; padding: 10px; border-radius: 8px; margin-bottom: 15px;">
+                    <p><strong>Route:</strong> <span id="routeFromTo">Loading...</span></p>
+                    <p><strong>Travel Date:</strong> <span id="travelDateDisplay">Loading...</span></p>
+                    <p><strong>Note:</strong> Prices shown are estimated fares for your selected route segment.</p>
+                </div>
+                <div>
+                    <button id="seaterBtn" class="seat-type-selector" onclick="renderSeatLayout('seater')">🪑 Seater</button>
+                    <button id="sleeperBtn" class="seat-type-selector" onclick="renderSeatLayout('sleeper')">🛏️ Sleeper</button>
+                </div>
+
+                <div id="seatLayout" style="margin-top: 10px;"></div>
+
+                <div id="seaterLegend" class="legend-container active">
+                    <div class="legend-item"><div class="legend-box legend-seater-available"></div>Available</div>
+                    <div class="legend-item"><div class="legend-box legend-seater-booked"></div>Booked</div>
+                    <div class="legend-item"><div class="legend-box legend-seater-selected"></div>Selected</div>
+                </div>
+
+                <div id="sleeperLegend" class="legend-container">
+                    <div class="legend-item"><div class="legend-box legend-sleeper-available"></div>Available</div>
+                    <div class="legend-item"><div class="legend-box legend-sleeper-booked"></div>Booked</div>
+                    <div class="legend-item"><div class="legend-box legend-sleeper-selected"></div>Selected</div>
+                </div>
+
+                <div id="selectionSummary">
+                    <p><strong>Selected Seats:</strong> <span id="selectedSeatsDisplay">None</span></p>
+                    <p><strong>Total Fare:</strong> ₹<span id="totalFare">0.00</span></p>
+
+                    <button id="proceedBtn" onclick="proceedToDetailsPage()" disabled>Enter Passenger Details</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="bookingsSection" class="user-section">
+            <h2>📖 Your Bookings</h2>
+            <div id="bookingList"></div>
+        </section>
+
+        <section id="profileSection" class="user-section">
+            <h2>👤 Your Profile</h2>
+            <div class="profile-card">
+                <p><strong>Name:</strong> <span th:text="${session.name}"></span></p>
+                <p><strong>Email:</strong> <span th:text="${session.email}"></span></p>
+            </div>
+        </section>
+    </main>
+</div>
+
+<script src="/js/user.js"></script>
+<div id="notification-container"></div>
+<div id="loader-overlay" class="loader-overlay">
+    <div class="loader-spinner"></div>
+</div>
+</body>
+</html>
