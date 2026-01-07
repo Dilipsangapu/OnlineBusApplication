@@ -1,91 +1,318 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns: th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Online Bus Booking</title>
+    <title>OnlineBus - Premium Bus Booking Platform</title>
     <link rel="stylesheet" th:href="@{/css/landing.css}" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min. css">
     <link rel="icon" type="image/x-icon" href="/favicon.ico">
     <meta name="user-email" th:content="${session.email}" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Book bus tickets online with OnlineBus. Compare prices, choose seats, and travel comfortably across India.">
 </head>
 <body>
 
-<!-- ✅ Navbar -->
+<!-- Enhanced Navbar -->
 <nav class="navbar">
-    <div class="logo">🚌 <span style="color: #007bff;">OnlineBus</span></div>
-    <ul class="nav-links">
-        <li><a th:href="@{/}">Home</a></li>
-        <li><a href="#search-section">Search Buses</a></li>
-        <li><a th:href="@{/login}">Login</a></li>
-        <li><a th:href="@{/register}">Register</a></li>
-    </ul>
+    <div class="container">
+        <a href="#" class="logo">
+            <i class="fas fa-bus"></i> OnlineBus
+        </a>
+        <ul class="nav-links">
+            <li><a th:href="@{/}"><i class="fas fa-home"></i> Home</a></li>
+            <li><a href="#search-section"><i class="fas fa-search"></i> Search</a></li>
+            <li><a th:href="@{/login}"><i class="fas fa-sign-in-alt"></i> Login</a></li>
+            <li><a th:href="@{/register}"><i class="fas fa-user-plus"></i> Register</a></li>
+        </ul>
+    </div>
 </nav>
 
-<!-- ✅ Hero Section -->
+<!-- Hero Section with Background -->
 <section class="hero">
-    <div class="hero-content">
-        <h1>Book Your Journey Instantly</h1>
-        <p>India’s Smartest Bus Booking Platform for Hassle-Free Travel</p>
-        <a href="#search-section" class="cta-button">Book a Bus Now</a>
+    <div class="container">
+        <div class="hero-content">
+            <h1>Travel in Comfort & Style</h1>
+            <p>Experience premium bus travel with India's most trusted booking platform.  Compare prices, choose your perfect seat, and travel with confidence.</p>
+            <a href="#search-section" class="cta-button">
+                <i class="fas fa-ticket-alt"></i> Book Your Journey
+            </a>
+        </div>
     </div>
-    <img src="https://cdn-icons-png.flaticon.com/512/2620/2620972.png" alt="Bus Travel" class="hero-img" />
 </section>
 
-<!-- ✅ Search Section -->
+<!-- How It Works Section -->
+<section class="how-it-works">
+    <div class="container">
+        <h2 class="section-title">How It Works</h2>
+        <div class="steps-container">
+            <div class="step-card">
+                <div class="step-number">1</div>
+                <h3>Search Routes</h3>
+                <p>Enter your departure and destination cities with your travel date to find available buses.</p>
+            </div>
+            <div class="step-card">
+                <div class="step-number">2</div>
+                <h3>Compare & Select</h3>
+                <p>Compare prices, timings, and amenities to choose the perfect bus for your journey.</p>
+            </div>
+            <div class="step-card">
+                <div class="step-number">3</div>
+                <h3>Book & Travel</h3>
+                <p>Complete secure payment and receive instant confirmation. Show your e-ticket and board! </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Enhanced Search Section -->
 <section id="search-section" class="search-section">
-    <h2>Search Buses</h2>
-    <div class="search-card">
-        <form id="busSearchForm" class="search-form">
-            <div class="input-group">
-                <label><span>🛫 From</span></label>
-                <input type="text" id="fromCity" placeholder="Enter departure city" required />
-            </div>
+    <div class="container">
+        <h2 class="section-title">Find Your Perfect Journey</h2>
+        <div class="search-card">
+            <form id="busSearchForm" class="search-form">
+                <div class="form-row">
+                    <div class="input-group">
+                        <label><i class="fas fa-map-marker-alt"></i> From City</label>
+                        <div class="input-icon"><i class="fas fa-map-marker-alt"></i></div>
+                        <input type="text" id="fromCity" placeholder="Enter departure city" required />
+                    </div>
+                    <div class="input-group">
+                        <label><i class="fas fa-map-marker-alt"></i> To City</label>
+                        <div class="input-icon"><i class="fas fa-map-marker-alt"></i></div>
+                        <input type="text" id="toCity" placeholder="Enter destination city" required />
+                    </div>
+                </div>
 
-            <div class="input-group">
-                <label><span>🛬 To</span></label>
-                <input type="text" id="toCity" placeholder="Enter destination city" required />
-            </div>
+                <div class="form-row">
+                    <div class="input-group">
+                        <label><i class="fas fa-calendar-alt"></i> Departure Date</label>
+                        <div class="input-icon"><i class="fas fa-calendar-alt"></i></div>
+                        <input type="date" id="journeyDate" required />
+                    </div>
+                    <div class="input-group">
+                        <label><i class="fas fa-users"></i> Passengers</label>
+                        <div class="input-icon"><i class="fas fa-users"></i></div>
+                        <select id="passengers" required>
+                            <option value="1">1 Passenger</option>
+                            <option value="2">2 Passengers</option>
+                            <option value="3">3 Passengers</option>
+                            <option value="4">4 Passengers</option>
+                            <option value="5">5+ Passengers</option>
+                        </select>
+                    </div>
+                </div>
 
-            <div class="input-group">
-                <label><span>📅 Journey Date</span></label>
-                <input type="date" id="journeyDate" required />
-            </div>
+                <button type="submit" class="search-btn">
+                    <i class="fas fa-search"></i> Search Buses
+                </button>
 
-            <button type="submit" class="search-btn">🔍 Search Buses</button>
-            <p class="note">You must login before booking a seat.</p>
-        </form>
+                <div class="note">
+                    <i class="fas fa-info-circle"></i>
+                    Please login before booking to complete your reservation and manage your tickets.
+                </div>
+            </form>
+        </div>
+
+        <!-- Dynamic Results Container -->
+        <div id="searchResults" class="results-container"></div>
     </div>
-
-    <!-- ✅ Dynamic Results -->
-    <div id="searchResults" class="results-container"></div>
 </section>
 
-<!-- ✅ Trust Banner -->
+
+<!-- Trust Banner with Enhanced Features -->
 <section class="trust-banner">
-    <h3>Why Choose OnlineBus?</h3>
-    <div class="features">
-        <div class="feature-card">
-            <img src="https://cdn-icons-png.flaticon.com/512/1946/1946488.png" alt="Secure" />
-            <h4>Secure Bookings</h4>
-            <p>100% safe and verified transactions with OTP login.</p>
-        </div>
-        <div class="feature-card">
-            <img src="https://cdn-icons-png.flaticon.com/512/2548/2548530.png" alt="Affordable" />
-            <h4>Lowest Prices</h4>
-            <p>Partnered with top travel agencies to offer you best deals.</p>
-        </div>
-        <div class="feature-card">
-            <img src="https://cdn-icons-png.flaticon.com/512/2965/2965567.png" alt="Support" />
-            <h4>24x7 Support</h4>
-            <p>Need help? Our support team is available anytime you need.</p>
+    <div class="container">
+        <h2 class="section-title">Why Choose OnlineBus?</h2>
+        <div class="features">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h4>100% Secure & Safe</h4>
+                <p>Bank-grade security with encrypted payments and verified bus operators.  Your safety and security is our top priority.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-tag"></i>
+                </div>
+                <h4>Best Price Guarantee</h4>
+                <p>Compare prices from multiple operators and get the best deals. We guarantee the lowest prices or we'll match the difference.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-headset"></i>
+                </div>
+                <h4>24/7 Customer Support</h4>
+                <p>Round-the-clock assistance via phone, chat, and email. Our support team is always ready to help you travel better.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-mobile-alt"></i>
+                </div>
+                <h4>Mobile Friendly</h4>
+                <p>Book tickets on-the-go with our responsive website and mobile app.  Manage bookings anytime, anywhere.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <h4>Real-time Tracking</h4>
+                <p>Track your bus in real-time and get live updates about delays, boarding points, and arrival times.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-undo-alt"></i>
+                </div>
+                <h4>Easy Cancellation</h4>
+                <p>Cancel or reschedule your bookings easily with our flexible policies and get instant refunds to your account.</p>
+            </div>
         </div>
     </div>
 </section>
 
-<!-- ✅ Footer -->
+
+
+<!-- Testimonials Section -->
+<section class="testimonials">
+    <div class="container">
+        <h2 class="section-title">What Our Customers Say</h2>
+        <div class="testimonials-grid">
+            <div class="testimonial-card">
+                <div class="testimonial-content">
+                    The booking process was smooth and the bus was comfortable. Real-time tracking helped me plan my pickup perfectly.  Highly recommend OnlineBus!
+                </div>
+                <div class="testimonial-author">
+                    <div class="author-avatar">A</div>
+                    <div class="author-info">
+                        <h5>Anitha Sharma</h5>
+                        <span>Software Engineer</span>
+                        <div class="rating">
+                            <span class="star">★</span>
+                            <span class="star">★</span>
+                            <span class="star">★</span>
+                            <span class="star">★</span>
+                            <span class="star">★</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="testimonial-card">
+                <div class="testimonial-content">
+                    Great customer service and transparent pricing. No hidden charges and the buses are well-maintained. My go-to platform for bus bookings.
+                </div>
+                <div class="testimonial-author">
+                    <div class="author-avatar">R</div>
+                    <div class="author-info">
+                        <h5>Rajesh Kumar</h5>
+                        <span>Business Owner</span>
+                        <div class="rating">
+                            <span class="star">★</span>
+                            <span class="star">★</span>
+                            <span class="star">★</span>
+                            <span class="star">★</span>
+                            <span class="star">★</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="testimonial-card">
+                <div class="testimonial-content">
+                    As a frequent traveler, I appreciate the variety of bus options and the easy booking process. The mobile app is fantastic too!
+                </div>
+                <div class="testimonial-author">
+                    <div class="author-avatar">P</div>
+                    <div class="author-info">
+                        <h5>Priya Singh</h5>
+                        <span>Marketing Manager</span>
+                        <div class="rating">
+                            <span class="star">★</span>
+                            <span class="star">★</span>
+                            <span class="star">★</span>
+                            <span class="star">★</span>
+                            <span class="star">★</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<!-- Enhanced Footer -->
 <footer>
-    <p>&copy; 2025 OnlineBus. All rights reserved.</p>
+    <div class="container">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>OnlineBus</h3>
+                <p>India's most trusted bus booking platform.  Travel comfortably and safely with verified operators across the country.</p>
+            </div>
+            <div class="footer-section">
+                <h3>Quick Links</h3>
+                <ul>
+                    <li><a href="#search-section">Search Buses</a></li>
+                    <li><a href="#" th:href="@{/login}">Login</a></li>
+                    <li><a href="#" th:href="@{/register}">Register</a></li>
+                    <li><a href="#">Offers</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Support</h3>
+                <ul>
+                    <li><a href="#">Help Center</a></li>
+                    <li><a href="#">Contact Us</a></li>
+                    <li><a href="#">Track Your Bus</a></li>
+                    <li><a href="#">Cancellation Policy</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Follow Us</h3>
+                <ul>
+                    <li><a href="#"><i class="fab fa-facebook"></i> Facebook</a></li>
+                    <li><a href="#"><i class="fab fa-twitter"></i> Twitter</a></li>
+                    <li><a href="#"><i class="fab fa-instagram"></i> Instagram</a></li>
+                    <li><a href="#"><i class="fab fa-linkedin"></i> LinkedIn</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 OnlineBus. All rights reserved.  | Trusted by millions of travelers across India.</p>
+        </div>
+    </div>
 </footer>
+
 <script src="/js/landing.js"></script>
+<script>
+    // Navbar scroll effect
+    window.addEventListener('scroll', function() {
+        const navbar = document.querySelector('.navbar');
+        if (window.scrollY > 50) {
+            navbar.classList.add('scrolled');
+        } else {
+            navbar.classList.remove('scrolled');
+        }
+    });
+
+    // Set minimum date for date picker
+    document.addEventListener('DOMContentLoaded', function() {
+        const dateInput = document.getElementById('journeyDate');
+        const today = new Date().toISOString().split('T')[0];
+        dateInput. min = today;
+        dateInput.value = today;
+    });
+
+    // Smooth scroll for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            document.querySelector(this.getAttribute('href')).scrollIntoView({
+                behavior: 'smooth'
+            });
+        });
+    });
+</script>
 </body>
 </html>

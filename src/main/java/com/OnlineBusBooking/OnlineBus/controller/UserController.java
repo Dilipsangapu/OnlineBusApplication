@@ -19,22 +19,14 @@ import java.util.*;
 @RequestMapping("/user")
 public class UserController {
 
-    @Autowired
-    private BusRepository busRepository;
-    @Autowired
-    private TripScheduleRepository tripScheduleRepository;
-    @Autowired
-    private BookingRepository bookingRepository;
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private RouteRepository routeRepository;
-    @Autowired
-    private EmailService emailService;
-    @Autowired
-    private SeatLayoutRepository seatLayoutRepository;
-
-
+    @Autowired private BusRepository busRepository;
+    @Autowired private TripScheduleRepository tripScheduleRepository;
+    @Autowired private BookingRepository bookingRepository;
+    @Autowired private UserRepository userRepository;
+    @Autowired private RouteRepository routeRepository;
+    @Autowired private EmailService emailService;
+    @Autowired private SeatLayoutRepository seatLayoutRepository;
+    @Autowired private AgentRepository agentRepository; // added
 
     @GetMapping("/dashboard")
     public String showUserDashboard(HttpSession session, Principal principal, Model model) {
@@ -42,17 +34,9 @@ public class UserController {
         Optional<User> userOpt = userRepository.findByEmail(email);
         if (userOpt.isPresent()) {
             User user = userOpt.get();
-
-            // ✅ FIX: UNCOMMENT these two lines.
-            // This puts the user's details into the HttpSession,
-            // which allows th:data-email="${session.email}" to work.
             session.setAttribute("email", user.getEmail());
             session.setAttribute("name", user.getName());
-
-            // This line is good to have for other Thymeleaf elements.
-            // I've renamed it from "session" to "user" to avoid confusion.
             model.addAttribute("user", user);
-
             return "userDashboard";
         }
         return "redirect:/login";
@@ -90,11 +74,8 @@ public class UserController {
                         result.put("busType", bus.getBusType());
                         result.put("departureTime", schedule.getDepartureTime());
                         result.put("arrivalTime", schedule.getArrivalTime());
-                        
-                        // Calculate estimated fare
                         double estimatedFare = calculateEstimatedFare(bus.getId(), fromLower, toLower, fullPath);
                         result.put("estimatedFare", estimatedFare);
-                        
                         results.add(result);
                     });
                 }
@@ -102,30 +83,22 @@ public class UserController {
         }
         return results;
     }
-    
+
     private double calculateEstimatedFare(String busId, String from, String to, List<String> fullPath) {
         try {
-            // Use the exact same logic as passenger-details.js updateFareForSeat()
             int fromIdx = fullPath.indexOf(from);
             int toIdx = fullPath.lastIndexOf(to);
-            
             if (fromIdx == -1 || toIdx == -1 || fromIdx >= toIdx) {
                 return 0.0;
             }
-            
-            // Get seat layout to find minimum fare
             Optional<SeatLayout> layoutOpt = seatLayoutRepository.findByBusId(busId);
             if (layoutOpt.isEmpty()) {
                 return 0.0;
             }
-            
             SeatLayout layout = layoutOpt.get();
             double minFare = Double.MAX_VALUE;
-            
             for (SeatLayout.Seat seat : layout.getSeats()) {
                 double basePrice = seat.getPrice();
-                
-                // Use the exact same calculation as passenger-details.js
                 double newFare = 0;
                 if (fromIdx >= 0 && toIdx > fromIdx) {
                     int totalSegments = fullPath.size() - 1;
@@ -133,17 +106,14 @@ public class UserController {
                         int traveledSegments = toIdx - fromIdx;
                         double ratio = (double) traveledSegments / totalSegments;
                         double calculatedFare = basePrice * ratio;
-                        
                         calculatedFare = Math.round(calculatedFare * 100.0) / 100.0;
-                        newFare = Math.max(50.0, calculatedFare); // Minimum fare
+                        newFare = Math.max(50.0, calculatedFare);
                     }
                 }
-                
                 if (newFare > 0) {
                     minFare = Math.min(minFare, newFare);
                 }
             }
-            
             return Double.isFinite(minFare) ? minFare : 0.0;
         } catch (Exception e) {
             return 0.0;
@@ -180,7 +150,7 @@ public class UserController {
         List<Map<String, Object>> enriched = new ArrayList<>();
         for (Booking booking : bookings) {
             Map<String, Object> entry = new HashMap<>();
-            entry.put("id", booking.getId()); // The unique ID for the booking
+            entry.put("id", booking.getId());
             entry.put("busId", booking.getBusId());
             entry.put("busName", busRepository.findById(booking.getBusId()).map(Bus::getBusName).orElse("Unknown Bus"));
             entry.put("routeFrom", booking.getPassengerFrom());
@@ -200,40 +170,42 @@ public class UserController {
     @PostMapping("/api/bookings/book")
     @ResponseBody
     public ResponseEntity<String> bookTicket(@RequestBody Booking booking) {
-        if (bookingRepository.existsByBusIdAndTravelDateAndSeatNumber(booking.getBusId(), booking.getTravelDate(), booking.getSeatNumber())) {
+        if (bookingRepository.existsByBusIdAndTravelDateAndSeatNumber(
+                booking.getBusId(), booking.getTravelDate(), booking.getSeatNumber())) {
             return ResponseEntity.status(409).body("❌ Seat already booked.");
         }
+
+        // Validate bus/route exist
         Optional<Bus> busOpt = busRepository.findById(booking.getBusId());
         Optional<Route> routeOpt = routeRepository.findByBusId(booking.getBusId()).stream().findFirst();
         if (busOpt.isEmpty() || routeOpt.isEmpty()) {
             return ResponseEntity.badRequest().body("❌ Bus or Route not found.");
         }
-        Route route = routeOpt.get();
-        List<String> stops = new ArrayList<>(List.of(route.getFrom().toLowerCase()));
-        if (route.getStops() != null) stops.addAll(route.getStops().stream().map(String::toLowerCase).toList());
-        stops.add(route.getTo().toLowerCase());
-        String from = booking.getPassengerFrom().toLowerCase();
-        String to = booking.getPassengerTo().toLowerCase();
-        int fromIndex = stops.indexOf(from);
-        int toIndex = stops.indexOf(to);
-        if (fromIndex == -1 || toIndex == -1 || fromIndex >= toIndex) {
-            return ResponseEntity.badRequest().body("❌ Invalid stop selection.");
-        }
+
+        // Validate seat exists and get its base price (for sanity bounds)
         double seatPrice = seatLayoutRepository.findByBusId(booking.getBusId())
                 .flatMap(layout -> layout.getSeats().stream()
                         .filter(s -> s.getNumber().equalsIgnoreCase(booking.getSeatNumber()))
                         .findFirst())
                 .map(SeatLayout.Seat::getPrice)
                 .orElse(0);
-        if (seatPrice == 0.0) {
+        if (seatPrice <= 0) {
             return ResponseEntity.badRequest().body("❌ Seat not found in layout.");
         }
-        double segmentRatio = (double) (toIndex - fromIndex) / (stops.size() - 1);
-        double finalFare = Math.max(50.0, Math.round(seatPrice * segmentRatio * 100.0) / 100.0);
-        booking.setFare(finalFare);
+
+        // Use the fare sent by the client (already charged in Razorpay), with simple bounds
+        double clientFare = booking.getFare();
+        if (clientFare <= 0) {
+            return ResponseEntity.badRequest().body("❌ Invalid fare.");
+        }
+        clientFare = Math.max(50.0, clientFare);   // minimum fare
+        clientFare = Math.min(clientFare, seatPrice); // optional: cap to seat base price
+
+        booking.setFare(Math.round(clientFare * 100.0) / 100.0);
         booking.setStatus("CONFIRMED");
         bookingRepository.save(booking);
-        return ResponseEntity.ok("✅ Booking confirmed. ₹" + finalFare);
+
+        return ResponseEntity.ok("✅ Booking confirmed. ₹" + booking.getFare());
     }
 
     @PostMapping("/api/finalize-booking")
@@ -247,8 +219,6 @@ public class UserController {
             return ResponseEntity.badRequest().body("Missing required fields.");
         }
 
-        // ✅ FIX: Reverted this logic to be compatible with your existing BookingRepository.
-        // This is less efficient but will not cause a crash.
         List<Booking> bookings = bookingRepository.findByCustomerEmail(email).stream()
                 .filter(b -> b.getBusId().equals(busId)
                         && b.getTravelDate().equals(travelDateStr)
@@ -261,7 +231,8 @@ public class UserController {
             return ResponseEntity.badRequest().body("No bookings or schedule found for finalization.");
         }
         try {
-            byte[] pdf = TicketPDFGenerator.generateTicketPDF(bookings, busOpt.get(), scheduleOpt.get());
+            Optional<Agent> agentOpt = agentRepository.findById(busOpt.get().getOperatorId());
+            byte[] pdf = TicketPDFGenerator.generateTicketPDF(bookings, busOpt.get(), scheduleOpt.get(), agentOpt.orElse(null));
             emailService.sendTicket(email, pdf, "ticket.pdf", bookings, busOpt.get());
             return ResponseEntity.ok("📧 Ticket emailed successfully.");
         } catch (Exception e) {
@@ -283,7 +254,8 @@ public class UserController {
             return ResponseEntity.badRequest().build();
         }
         try {
-            byte[] pdf = TicketPDFGenerator.generateTicketPDF(List.of(booking), busOpt.get(), scheduleOpt.get());
+            Optional<Agent> agentOpt = agentRepository.findById(busOpt.get().getOperatorId());
+            byte[] pdf = TicketPDFGenerator.generateTicketPDF(List.of(booking), busOpt.get(), scheduleOpt.get(), agentOpt.orElse(null));
             return ResponseEntity.ok()
                     .header("Content-Disposition", "attachment; filename=ticket_" + booking.getSeatNumber() + ".pdf")
                     .header("Content-Type", "application/pdf")
@@ -293,9 +265,9 @@ public class UserController {
             return ResponseEntity.internalServerError().build();
         }
     }
+
     @GetMapping("/passenger-details.html")
     public String showPassengerDetailsPage() {
-        return "passenger-details"; // This maps to passenger-details.html
+        return "passenger-details";
     }
-
 }

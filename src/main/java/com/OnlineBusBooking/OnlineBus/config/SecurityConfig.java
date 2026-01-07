@@ -46,7 +46,6 @@ public class SecurityConfig {
         };
     }
 
-
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
@@ -55,7 +54,6 @@ public class SecurityConfig {
     @Bean
     public AuthenticationSuccessHandler successHandler() {
         return (request, response, authentication) -> {
-            // Populate session with user details for templates/JS that read data-email and data-name
             String username = authentication.getName();
             userRepository.findByEmail(username).ifPresent(u -> {
                 request.getSession().setAttribute("email", u.getEmail());
@@ -64,8 +62,6 @@ public class SecurityConfig {
 
             for (GrantedAuthority authority : authentication.getAuthorities()) {
                 String role = authority.getAuthority();
-                System.out.println("Authenticated ROLE: " + role);
-
                 if (role.equals("ROLE_ADMIN")) {
                     response.sendRedirect("/admin-dashboard");
                     return;
@@ -86,27 +82,24 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
+                        // Public endpoints and static assets (includes landing page "/")
                         .requestMatchers(
-                                "/", "/register", "/login", "/dashboard",
-                                "/admin-dashboard", "/process-login",
-                                "/css/**", "/js/**", "/images/**", "/fonts/**",
-                                "/buses/update/**", "/buses/edit/**",
-                                "/buses/api/search", "/api/auth/**", "/api/agents/**",
-                                "/api/buses/**", "/buses/api/**", "/api/routes/**",
-                                "/api/search-buses", "/api/seats/**", "/api/schedule/**",
-                                "/api/**", "/edit-bus/**",
-                                "/user/api/**" ,
-                                "/user/api/search-buses",
-                                "/forgot-password", "/reset-password","/svg/**",
-                                "/api/payments/**"
+                                "/",                       // landing page
+                                "/login", "/register",
+                                "/forgot-password", "/reset-password",
+                                "/api/auth/**",
+                                "/api/search-buses", "/api/buses/**", "/api/routes/**",
+                                "/api/seats/**", "/api/schedule/**", "/api/payments/**",
+                                "/css/**", "/js/**", "/images/**", "/fonts/**", "/svg/**"
                         ).permitAll()
 
-                        // Authorize all user pages and the specific details page
+                        // Role-based protections
+                        .requestMatchers("/admin-dashboard", "/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/agent/api/agents/**").hasRole("ADMIN")   // add/list agents
+                        .requestMatchers("/agent-dashboard", "/agent/**").hasRole("AGENT")
                         .requestMatchers("/user/**", "/user/passenger-details.html").hasRole("USER")
-                        // Require AGENT role for agent dashboard page too
-                        .requestMatchers("/agent-dashboard").hasRole("AGENT")
-                        // Require AGENT role for agent pages
-                        .requestMatchers("/agent/**").hasRole("AGENT")
+
+                        // Everything else requires authentication
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
@@ -121,10 +114,9 @@ public class SecurityConfig {
                         .logoutSuccessUrl("/login?logout")
                         .permitAll()
                 )
-                // FINAL FIX: Strict session management to maintain SecurityContext
                 .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.ALWAYS)
-                        .sessionFixation().newSession()
+                        .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+                        .sessionFixation().migrateSession()
                 );
 
         return http.build();
